@@ -1,0 +1,37 @@
+{
+  "$schema": "https://hexoros.com/schemas/agent.v1.json",
+  "id": "marketing-bot",
+  "label": "Marketing Bot",
+  "description": "Drafts short social posts for indie SaaS launches.",
+  "model": "hexoros:latest",
+  "host": "https://api.hexoros.com",
+  "auth": {
+    "type": "bearer",
+    "token_source": "localStorage",
+    "token_key": "hexoros_jwt"
+  },
+  "system_prompt": "You write short, punchy Twitter posts (max 240 chars) about indie SaaS launches. No emojis. No hashtags. End every post with a single concrete CTA.",
+  "tools": [
+    {
+      "name": "web_search",
+      "enabled": true,
+      "rate_limit_per_hour": 60
+    },
+    {
+      "name": "vault_read",
+      "enabled": true,
+      "scope": ["marketing/*"]
+    }
+  ],
+  "memory": {
+    "type": "episodic",
+    "max_turns": 12,
+    "summarize_after": 24
+  },
+  "limits": {
+    "max_tokens_per_response": 512,
+    "max_requests_per_hour": 120
+  },
+  "tags": ["marketing", "social", "drafting"],
+  "priority": "medium"
+}

@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" width="1200" height="720" role="img" aria-label="HexorOS Agent OS Dashboard preview">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#040a14"/>
+      <stop offset="100%" stop-color="#0a1320"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#00f2ff" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#00f2ff" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#00f2ff" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <pattern id="hex" x="0" y="0" width="40" height="46" patternUnits="userSpaceOnUse">
+      <polygon points="20,2 38,12 38,34 20,44 2,34 2,12" fill="none" stroke="#00f2ff" stroke-opacity="0.06" stroke-width="0.8"/>
+    </pattern>
+  </defs>
+
+  <!-- background -->
+  <rect width="1200" height="720" fill="url(#bg)"/>
+  <rect width="1200" height="720" fill="url(#hex)"/>
+
+  <!-- top bar -->
+  <rect x="0" y="0" width="1200" height="56" fill="#0d1825"/>
+  <rect x="0" y="56" width="1200" height="1" fill="#00f2ff" fill-opacity="0.3"/>
+  <polygon points="28,28 40,21 52,28 52,42 40,49 28,42" fill="none" stroke="#00f2ff" stroke-width="2" filter="url(#glow)"/>
+  <text x="68" y="36" fill="#00f2ff" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="18" font-weight="700" letter-spacing="2">HEXOROS</text>
+  <text x="170" y="36" fill="#7d8aa0" font-family="ui-monospace,monospace" font-size="13">// agent-os dashboard</text>
+  <circle cx="1140" cy="28" r="5" fill="#22c55e" filter="url(#glow)"/>
+  <text x="1080" y="32" fill="#9ca8be" font-family="ui-monospace,monospace" font-size="12">online</text>
+
+  <!-- left nav -->
+  <rect x="0" y="56" width="220" height="664" fill="#0a1320"/>
+  <rect x="219" y="56" width="1" height="664" fill="#00f2ff" fill-opacity="0.15"/>
+  <g font-family="ui-monospace,monospace" font-size="13">
+    <rect x="12" y="80" width="196" height="36" rx="6" fill="#00f2ff" fill-opacity="0.1"/>
+    <rect x="12" y="80" width="3" height="36" fill="#00f2ff"/>
+    <text x="32" y="103" fill="#00f2ff">⬡  Dashboard</text>
+    <text x="32" y="148" fill="#9ca8be">◆  Agents</text>
+    <text x="32" y="188" fill="#9ca8be">▣  Vault</text>
+    <text x="32" y="228" fill="#9ca8be">⧉  Mindmap</text>
+    <text x="32" y="268" fill="#9ca8be">⚙  Settings</text>
+  </g>
+  <text x="32" y="680" fill="#5a6479" font-family="ui-monospace,monospace" font-size="11">v0.1.0 · cyan #00f2ff</text>
+
+  <!-- main: stat tiles -->
+  <g font-family="ui-monospace,monospace">
+    <rect x="248" y="84" width="220" height="100" rx="8" fill="#0d1825" stroke="#00f2ff" stroke-opacity="0.25"/>
+    <text x="266" y="110" fill="#7d8aa0" font-size="11">AGENTS · ACTIVE</text>
+    <text x="266" y="148" fill="#00f2ff" font-size="32" font-weight="700" filter="url(#glow)">04</text>
+    <text x="266" y="170" fill="#22c55e" font-size="11">▲ all green</text>
+
+    <rect x="488" y="84" width="220" height="100" rx="8" fill="#0d1825" stroke="#00f2ff" stroke-opacity="0.25"/>
+    <text x="506" y="110" fill="#7d8aa0" font-size="11">TOKENS · 24H</text>
+    <text x="506" y="148" fill="#00f2ff" font-size="32" font-weight="700" filter="url(#glow)">1.84M</text>
+    <text x="506" y="170" fill="#7d8aa0" font-size="11">across 3 nodes</text>
+
+    <rect x="728" y="84" width="220" height="100" rx="8" fill="#0d1825" stroke="#00f2ff" stroke-opacity="0.25"/>
+    <text x="746" y="110" fill="#7d8aa0" font-size="11">QUEUE · DEPTH</text>
+    <text x="746" y="148" fill="#00f2ff" font-size="32" font-weight="700" filter="url(#glow)">07</text>
+    <text x="746" y="170" fill="#7d8aa0" font-size="11">avg wait 1.2s</text>
+
+    <rect x="968" y="84" width="220" height="100" rx="8" fill="#0d1825" stroke="#00f2ff" stroke-opacity="0.25"/>
+    <text x="986" y="110" fill="#7d8aa0" font-size="11">UPTIME · 30D</text>
+    <text x="986" y="148" fill="#00f2ff" font-size="32" font-weight="700" filter="url(#glow)">99.94%</text>
+    <text x="986" y="170" fill="#22c55e" font-size="11">SLA ok</text>
+  </g>
+
+  <!-- agent table -->
+  <rect x="248" y="208" width="600" height="320" rx="8" fill="#0d1825" stroke="#00f2ff" stroke-opacity="0.2"/>
+  <text x="270" y="238" fill="#9ca8be" font-family="ui-monospace,monospace" font-size="12" letter-spacing="2">AGENT REGISTRY</text>
+  <line x1="248" y1="252" x2="848" y2="252" stroke="#00f2ff" stroke-opacity="0.15"/>
+  <g font-family="ui-monospace,monospace" font-size="12">
+    <text x="270" y="276" fill="#5a6479">AGENT</text>
+    <text x="430" y="276" fill="#5a6479">MODEL</text>
+    <text x="600" y="276" fill="#5a6479">HOST</text>
+    <text x="760" y="276" fill="#5a6479">STATUS</text>
+
+    <line x1="248" y1="288" x2="848" y2="288" stroke="#00f2ff" stroke-opacity="0.08"/>
+
+    <text x="270" y="312" fill="#e5edff">◆ marketing-bot</text>
+    <text x="430" y="312" fill="#9ca8be">hexoros:latest</text>
+    <text x="600" y="312" fill="#9ca8be">api.hexoros.com</text>
+    <circle cx="768" cy="308" r="5" fill="#22c55e" filter="url(#glow)"/>
+    <text x="782" y="312" fill="#22c55e">ready</text>
+
+    <text x="270" y="344" fill="#e5edff">◆ vault-keeper</text>
+    <text x="430" y="344" fill="#9ca8be">hexoros:latest</text>
+    <text x="600" y="344" fill="#9ca8be">api.hexoros.com</text>
+    <circle cx="768" cy="340" r="5" fill="#22c55e" filter="url(#glow)"/>
+    <text x="782" y="344" fill="#22c55e">ready</text>
+
+    <text x="270" y="376" fill="#e5edff">◆ codegen-ops</text>
+    <text x="430" y="376" fill="#9ca8be">qwen3:27b</text>
+    <text x="600" y="376" fill="#9ca8be">internal/gex44</text>
+    <circle cx="768" cy="372" r="5" fill="#eab308" filter="url(#glow)"/>
+    <text x="782" y="376" fill="#eab308">busy</text>
+
+    <text x="270" y="408" fill="#e5edff">◆ lead-finder</text>
+    <text x="430" y="408" fill="#9ca8be">hexoros:latest</text>
+    <text x="600" y="408" fill="#9ca8be">api.hexoros.com</text>
+    <circle cx="768" cy="404" r="5" fill="#22c55e" filter="url(#glow)"/>
+    <text x="782" y="408" fill="#22c55e">ready</text>
+  </g>
+
+  <!-- live chart -->
+  <rect x="248" y="552" width="600" height="148" rx="8" fill="#0d1825" stroke="#00f2ff" stroke-opacity="0.2"/>
+  <text x="270" y="582" fill="#9ca8be" font-family="ui-monospace,monospace" font-size="12" letter-spacing="2">THROUGHPUT · 60 MIN</text>
+  <polyline points="270,680 310,660 350,640 390,650 430,620 470,600 510,610 550,580 590,560 630,575 670,540 710,520 750,530 790,500 830,490"
+    fill="none" stroke="#00f2ff" stroke-width="2" filter="url(#glow)"/>
+  <polyline points="270,680 310,660 350,640 390,650 430,620 470,600 510,610 550,580 590,560 630,575 670,540 710,520 750,530 790,500 830,490 830,700 270,700"
+    fill="#00f2ff" fill-opacity="0.08" stroke="none"/>
+
+  <!-- right rail: vault preview -->
+  <rect x="868" y="208" width="320" height="492" rx="8" fill="#0d1825" stroke="#00f2ff" stroke-opacity="0.2"/>
+  <text x="888" y="238" fill="#9ca8be" font-family="ui-monospace,monospace" font-size="12" letter-spacing="2">VAULT · RECENT</text>
+  <line x1="868" y1="252" x2="1188" y2="252" stroke="#00f2ff" stroke-opacity="0.15"/>
+  <g font-family="ui-monospace,monospace" font-size="12">
+    <text x="888" y="280" fill="#00f2ff">▣ kb-001  Engine pricing</text>
+    <text x="906" y="298" fill="#7d8aa0" font-size="10">pricing · engine · sales</text>
+
+    <text x="888" y="332" fill="#00f2ff">▣ kb-014  EU AI Act scope</text>
+    <text x="906" y="350" fill="#7d8aa0" font-size="10">compliance · legal</text>
+
+    <text x="888" y="384" fill="#00f2ff">▣ kb-027  Voice agent QA</text>
+    <text x="906" y="402" fill="#7d8aa0" font-size="10">qa · voice · max</text>
+
+    <text x="888" y="436" fill="#00f2ff">▣ kb-031  Backer comms</text>
+    <text x="906" y="454" fill="#7d8aa0" font-size="10">indiegogo · email</text>
+
+    <text x="888" y="488" fill="#00f2ff">▣ kb-044  GDPR pack v2</text>
+    <text x="906" y="506" fill="#7d8aa0" font-size="10">compliance · gdpr · pdf</text>
+  </g>
+
+  <!-- subtle accent line -->
+  <rect x="0" y="719" width="1200" height="1" fill="url(#accent)"/>
+</svg>
