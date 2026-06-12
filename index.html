@@ -143,19 +143,31 @@ const {useState,useEffect,useRef,useCallback}=React;
 
 // ── Default agent configs ─────────────────────────────────────────────────────
 const AGENT_DEFAULTS=[
-  {id:'claude',    lbl:'CLAUDE',      role:'Backend / Infra',  clr:'#00f2ff',
+  {id:'cowork',    lbl:'COWORK',      role:'Frontend · Backend · Infra', clr:'#00f2ff',
    provider:'claude', model:'claude-sonnet-4-6', host:'https://api.anthropic.com',
    workdir:'~/HexorosChaos/',
-   ctx:'You are Claude, a helpful AI assistant by Anthropic. Be concise and precise.'},
-  {id:'antigravity',lbl:'ANTIGRAVITY',role:'Frontend / Deploy', clr:'#9b59ff',
-   provider:'ollama', model:'hexoros:latest', host:'https://api.hexoros.com',
-   workdir:'/var/www/hexoros-chat/',
-   ctx:'You are Antigravity, the HexorOS deploy and coding AI. Handle infrastructure, code, deployments. Concise. Anti-boundary: only write /var/www/. No nginx vhosts, no systemd from agents.'},
-  {id:'hermes',    lbl:'HERMES',      role:'Codegen / Local',  clr:'#ff8800',
-   provider:'ollama', model:'nemotron / deepseek / nvidia', host:'http://localhost:11434',
+   ctx:'You are Cowork (Claude), permanent owner of frontend, backend and infrastructure for HexorOS. Deploy via the deploy.sh wrapper only. Respect nginx routing boundaries. Be concise and precise.'},
+  {id:'antigravity',lbl:'ANTIGRAVITY',role:'Design / Mockups', clr:'#9b59ff',
+   provider:'gemini', model:'gemini-3.1-pro-preview', host:'https://generativelanguage.googleapis.com',
+   workdir:'~/HexorosChaos/design-system/',
+   ctx:'You are Antigravity, the HexorOS design and mockup agent. You produce designs, mockups and static assets — you do NOT write frontend production code. Boundaries: static files in /var/www/ only; never touch nginx vhosts, systemd units or certificates. Brand: Cyberpunk Cyan #00f2ff on deep space #0f172a. Concise.'},
+  {id:'hermes',    lbl:'HERMES',      role:'VPS Agent',        clr:'#ff8800',
+   provider:'openai', model:'mimo-v2.5-free', host:'https://opencode.ai/zen/v1',
    workdir:'~/HexorosChaos/',
-   ctx:'You are Hermes, local codegen agent for HexorOS. Execute CODEGEN_TASKS, write code, run scripts. Concise.'},
-  {id:'custom',    lbl:'CUSTOM',      role:'Extensible',       clr:'#00ff88',
+   ctx:'You are Hermes, the HexorOS VPS agent. Execute server-side tasks, monitor services, run scripts. Concise.'},
+  {id:'hexor',     lbl:'HEXOR',       role:'Business Automation', clr:'#00ff88',
+   provider:'ollama', model:'hexoros:latest', host:'https://api.hexoros.com',
+   workdir:'/var/www/',
+   ctx:'You are HEXOR, the HexorOS general business automation agent — strategy, content, research and operations. Never quote prices; prices live on hexoros.com only. Concise.'},
+  {id:'hexcoder',  lbl:'HEXCODER',    role:'Code & Engineering', clr:'#ffaa00',
+   provider:'ollama', model:'hexoros:latest', host:'https://api.hexoros.com',
+   workdir:'~/HexorosChaos/',
+   ctx:'You are HEXCODER, the HexorOS code and engineering specialist — multi-file projects, tests, debugging, full stack. Start code blocks with a filepath comment. Concise.'},
+  {id:'max',       lbl:'MAX',         role:'Voice / AI Suite', clr:'#ff3355',
+   provider:'ollama', model:'hexoros:latest', host:'https://api.hexoros.com',
+   workdir:'/var/www/',
+   ctx:'You are MAX, the HexorOS premium voice agent (Dograh + Supertonic3 stack). Conversational, natural, concise — your answers are spoken aloud.'},
+  {id:'custom',    lbl:'CUSTOM',      role:'Extensible',       clr:'#5a7080',
    provider:'ollama', model:'', host:'http://localhost:11434',
    workdir:'~/',
    ctx:'Custom agent. Edit settings to configure provider, model, host, and system prompt.'},
@@ -163,6 +175,7 @@ const AGENT_DEFAULTS=[
 
 const SECTIONS=[
   {id:'dash',     lbl:'Dashboard',    ico:'⬡'},
+  {id:'multi',    lbl:'Multi-Agent',  ico:'⠿'},
   {id:'kanban',   lbl:'Kanban',       ico:'▦'},
   {id:'memory',   lbl:'Memory Vault', ico:'◈'},
   {id:'obsidian', lbl:'Obsidian',     ico:'◉'},
@@ -254,7 +267,10 @@ function KnowledgeGraph({nodes,onSelect,selected}){
 function AgentSettings({agent,onSave,onClose}){
   const[cfg,setCfg]=useState({...agent});
   const CLAUDE_MODELS=['claude-opus-4-6','claude-sonnet-4-6','claude-haiku-4-5-20251001'];
-  const OLLAMA_MODELS=['qwen3:27b','hexoros:latest','llama3.2:latest','gemma3:latest','mistral:latest'];
+  const OLLAMA_MODELS=['qwen3:27b','hexoros:latest','hexoros-fast:latest','gemma4:12b','llama3.2:latest','mistral:latest'];
+  const GEMINI_MODELS=['gemini-3.1-pro-preview','gemini-3.5-flash','gemini-pro-latest','gemini-flash-latest'];
+  const OPENAI_MODELS=['mimo-v2.5-free','gpt-4o','deepseek-chat'];
+  const MODEL_LIST={claude:CLAUDE_MODELS,gemini:GEMINI_MODELS,openai:OPENAI_MODELS};
   const update=k=>e=>setCfg(c=>({...c,[k]:e.target.value}));
   return(
     <div className="overlay" onClick={onClose}>
@@ -265,9 +281,10 @@ function AgentSettings({agent,onSave,onClose}){
         <div className="field">
           <label>Provider</label>
           <select value={cfg.provider} onChange={update('provider')}>
-            <option value="ollama">Ollama / Compatible</option>
+            <option value="ollama">Ollama / HexorOS Proxy</option>
             <option value="claude">Claude API</option>
-            <option value="custom">Custom OpenAI-compat</option>
+            <option value="gemini">Gemini API</option>
+            <option value="openai">OpenAI-compatible (OpenCode Zen, ...)</option>
           </select>
         </div>
         <div className="field">
@@ -278,11 +295,11 @@ function AgentSettings({agent,onSave,onClose}){
           <label>Model</label>
           <input value={cfg.model} onChange={update('model')} list={`mdl-${cfg.id}`} placeholder="qwen3:27b / claude-sonnet-4-6"/>
           <datalist id={`mdl-${cfg.id}`}>
-            {(cfg.provider==='claude'?CLAUDE_MODELS:OLLAMA_MODELS).map(m=><option key={m} value={m}/>)}
+            {(MODEL_LIST[cfg.provider]||OLLAMA_MODELS).map(m=><option key={m} value={m}/>)}
           </datalist>
         </div>
-        {cfg.provider==='claude'&&(
-          <div className="field"><label>API Key</label><input type="password" value={cfg.apiKey||''} onChange={update('apiKey')} placeholder="sk-ant-..."/></div>
+        {cfg.provider!=='ollama'&&(
+          <div className="field"><label>API Key</label><input type="password" value={cfg.apiKey||''} onChange={update('apiKey')} placeholder="sk-ant-... / AIza... / zen-..."/></div>
         )}
         <div className="field"><label>System Prompt</label><textarea rows={4} style={{resize:'vertical'}} value={cfg.ctx} onChange={update('ctx')}/></div>
         <div className="field"><label>Accent Color</label><input type="color" value={cfg.clr} onChange={update('clr')} style={{width:60,height:30,padding:2}}/></div>
@@ -296,7 +313,7 @@ function AgentSettings({agent,onSave,onClose}){
 }
 
 // ── Agent Chat ────────────────────────────────────────────────────────────────
-function AgentChat({agent,onUpdateAgent}){
+function AgentChat({agent,onUpdateAgent,compact}){
   const[msgs,setMsgs]=useLs(`hx_chat_${agent.id}`,[{role:'ai',text:`${agent.lbl} online. ${agent.role}.`}]);
   const[inp,setInp]=useState('');
   const[loading,setLoading]=useState(false);
@@ -328,6 +345,46 @@ function AgentChat({agent,onUpdateAgent}){
             try{const d=JSON.parse(data);if(d.type==='content_block_delta'&&d.delta?.text){full+=d.delta.text;setMsgs(m=>m.map(x=>x.id===aiId?{...x,text:full}:x));}}catch{}
           }
         }
+      } else if(agent.provider==='gemini'){
+        // Gemini API SSE streaming
+        const host=agent.host||'https://generativelanguage.googleapis.com';
+        const res=await fetch(`${host}/v1beta/models/${agent.model||'gemini-flash-latest'}:streamGenerateContent?alt=sse`,{
+          method:'POST',
+          headers:{'Content-Type':'application/json','x-goog-api-key':agent.apiKey||''},
+          body:JSON.stringify({system_instruction:{parts:[{text:agent.ctx}]},contents:[{role:'user',parts:[{text:txt}]}]})
+        });
+        if(!res.ok)throw new Error(`Gemini API ${res.status}`);
+        const reader=res.body.getReader();const dec=new TextDecoder();let buf='';
+        while(true){
+          const{done,value}=await reader.read();if(done)break;
+          buf+=dec.decode(value,{stream:true});
+          const lines=buf.split('\n');buf=lines.pop();
+          for(const line of lines){
+            if(!line.startsWith('data:'))continue;
+            const data=line.slice(5).trim();if(!data||data==='[DONE]')continue;
+            try{const d=JSON.parse(data);const t=(d.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('');if(t){full+=t;setMsgs(m=>m.map(x=>x.id===aiId?{...x,text:full}:x));}}catch{}
+          }
+        }
+      } else if(agent.provider==='openai'){
+        // OpenAI-compatible SSE streaming (OpenCode Zen, etc.)
+        const host=(agent.host||'https://opencode.ai/zen/v1').replace(/\/$/,'');
+        const res=await fetch(`${host}/chat/completions`,{
+          method:'POST',
+          headers:{'Content-Type':'application/json','Authorization':`Bearer ${agent.apiKey||''}`},
+          body:JSON.stringify({model:agent.model,stream:true,messages:[{role:'system',content:agent.ctx},{role:'user',content:txt}]})
+        });
+        if(!res.ok)throw new Error(`API ${res.status}`);
+        const reader=res.body.getReader();const dec=new TextDecoder();let buf='';
+        while(true){
+          const{done,value}=await reader.read();if(done)break;
+          buf+=dec.decode(value,{stream:true});
+          const lines=buf.split('\n');buf=lines.pop();
+          for(const line of lines){
+            if(!line.startsWith('data:'))continue;
+            const data=line.slice(5).trim();if(!data||data==='[DONE]')continue;
+            try{const d=JSON.parse(data);const t=d.choices?.[0]?.delta?.content;if(t){full+=t;setMsgs(m=>m.map(x=>x.id===aiId?{...x,text:full}:x));}}catch{}
+          }
+        }
       } else {
         // Ollama NDJSON streaming
         const host=agent.host||'https://api.hexoros.com';
@@ -351,12 +408,12 @@ function AgentChat({agent,onUpdateAgent}){
     finally{setLoading(false);}
   };
 
-  const providerLabel={claude:'Claude API',ollama:'Ollama',custom:'Custom'}[agent.provider]||agent.provider;
+  const providerLabel={claude:'Claude API',gemini:'Gemini API',openai:'OpenAI-compat',ollama:'Ollama',custom:'Custom'}[agent.provider]||agent.provider;
 
   return(
     <>
     {showSettings&&<AgentSettings agent={agent} onSave={cfg=>{onUpdateAgent(cfg);setShowSettings(false);}} onClose={()=>setShowSettings(false)}/>}
-    <div className="chat-w" style={{height:'calc(100vh - 42px)'}}>
+    <div className="chat-w" style={{height:compact?'100%':'calc(100vh - 42px)'}}>
       <div style={{padding:'8px 16px',background:'var(--bg2)',borderBottom:'1px solid var(--b)',display:'flex',alignItems:'center',gap:10,flexShrink:0}}>
         <div style={{width:7,height:7,borderRadius:'50%',background:agent.clr,boxShadow:`0 0 6px ${agent.clr}`}}/>
         <span style={{fontSize:12,fontWeight:700,letterSpacing:'.12em',color:agent.clr}}>{agent.lbl}</span>
@@ -380,6 +437,38 @@ function AgentChat({agent,onUpdateAgent}){
       </div>
     </div>
     </>
+  );
+}
+
+// ── Multi-Agent Split View ────────────────────────────────────────────────────
+function MultiAgent({agents,onUpdateAgent}){
+  const[active,setActive]=useLs('hx_multi_active',agents.slice(0,3).map(a=>a.id));
+  const toggle=id=>setActive(a=>a.includes(id)?a.filter(x=>x!==id):[...a,id]);
+  const shown=agents.filter(a=>active.includes(a.id));
+  return(
+    <div style={{display:'flex',flexDirection:'column',height:'100%'}}>
+      <div style={{display:'flex',gap:6,padding:'8px 12px',borderBottom:'1px solid var(--b)',flexWrap:'wrap',flexShrink:0,alignItems:'center'}}>
+        <span style={{fontSize:9,color:'var(--dim)',letterSpacing:'.1em',marginRight:4}}>AGENTS:</span>
+        {agents.map(a=>(
+          <button key={a.id} className="bsm" onClick={()=>toggle(a.id)}
+            style={{borderColor:active.includes(a.id)?a.clr:'var(--b)',color:active.includes(a.id)?a.clr:'var(--dim)',opacity:active.includes(a.id)?1:.6}}>
+            {a.lbl}
+          </button>
+        ))}
+        <span style={{marginLeft:'auto',fontSize:9,color:'var(--dim)'}}>{shown.length} parallel</span>
+      </div>
+      {shown.length===0?(
+        <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',color:'var(--dim)',fontSize:11}}>select agents above to run them side by side</div>
+      ):(
+        <div style={{flex:1,display:'grid',gridTemplateColumns:`repeat(${Math.min(shown.length,4)},1fr)`,gap:0,overflow:'auto',minHeight:0}}>
+          {shown.map(a=>(
+            <div key={a.id} style={{borderRight:'1px solid var(--b)',minWidth:0,display:'flex',flexDirection:'column',overflow:'hidden'}}>
+              <AgentChat agent={a} onUpdateAgent={onUpdateAgent} compact/>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -792,7 +881,7 @@ function MemoryPanel(){
 
 // ── App ───────────────────────────────────────────────────────────────────────
 function App(){
-  const[agents,setAgents]=useLs('hx_agents',AGENT_DEFAULTS);
+  const[agents,setAgents]=useLs('hx_agents_v2',AGENT_DEFAULTS);
   const[section,setSection]=useState('dash');
   const[agent,setAgent]=useState(null);
   const openAgent=id=>{const a=agents.find(x=>x.id===id);if(a)setAgent(a);};
@@ -802,6 +891,7 @@ function App(){
     if(agent)return<AgentChat agent={agent} onUpdateAgent={updateAgent}/>;
     switch(section){
       case'dash':     return<div className="panel"><Dashboard agents={agents} onAgent={openAgent}/></div>;
+      case'multi':    return<MultiAgent agents={agents} onUpdateAgent={updateAgent}/>;
       case'kanban':   return<div className="panel"><Kanban/></div>;
       case'memory':   return<div className="panel"><MemoryPanel/></div>;
       case'obsidian': return<div className="panel"><ObsidianPanel/></div>;
@@ -823,7 +913,7 @@ function App(){
           {agents.map(a=><div key={a.id} className={`nav ${agent?.id===a.id?'on':''}`} onClick={()=>openAgent(a.id)}>
             <div className="dot pdot" style={{background:a.clr,boxShadow:`0 0 4px ${a.clr}`,flexShrink:0}}/>
             <span style={{flex:1}}>{a.lbl}</span>
-            <span style={{fontSize:8,color:'var(--dim)'}}>{a.provider==='claude'?'API':'Ollama'}</span>
+            <span style={{fontSize:8,color:'var(--dim)'}}>{{claude:'Claude',gemini:'Gemini',openai:'OpenAI',ollama:'Ollama'}[a.provider]||'API'}</span>
           </div>)}
         </div>
         <div className="sb-bot"><Status/><div className="sr" style={{fontSize:8,color:'var(--dim)'}}>qwen3:27b · hexoros:latest · GEX44</div></div>
