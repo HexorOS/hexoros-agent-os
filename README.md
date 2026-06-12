@@ -58,6 +58,14 @@ A public, read-only build is auto-deployed to GitHub Pages on every main branch 
 
 ---
 
+## 💬 Chat Widget (Open Source)
+
+This repo also ships the **HexorOS Chat Widget** — a dependency-free, embeddable chat widget for any website. One script tag, streaming responses, no cookies, no tracking. Bring your own backend or use the hosted HexorOS Engine.
+
+See [`widget/README.md`](widget/README.md) for setup.
+
+---
+
 ## 🏗️ System Architecture
 
 The dashboard is completely stateless and talks to your secure backend gateway via JSON Web Tokens (JWT RS256):
@@ -101,6 +109,9 @@ For a detailed technical breakdown, configurations, and boundaries, see [`ARCHIT
 ├── examples/
 │   ├── agent.json      # Sample configuration file for custom agents
 │   └── vault-note.md   # Structure specifications for knowledge base documents
+├── widget/
+│   ├── hexor-widget.js # Embeddable chat widget (single file, no dependencies)
+│   └── README.md       # Widget setup and backend contract
 └── screenshots/        # Assets, diagrams, and preview screenshots
 ```
 

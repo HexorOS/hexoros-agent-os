@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Shipped
+- **2026-06-12** — Open-sourced the HexorOS Chat Widget: dependency-free embeddable chat for any website (widget/), bring-your-own-backend or hosted Engine
 - **2026-06-12** — Dashboard v0.2-pre: Gemini and OpenAI-compatible providers (model picker + API keys), updated agent roster and roles (7 agents), new Multi-Agent split view for parallel side-by-side sessions
 - **2026-06-12** — Production redeploy: storefront and chat frontend refreshed
 - **2026-06-12** — Repository now ships with full AGPL-3.0 LICENSE file; automated sync pipeline with secret-scanning guard established
