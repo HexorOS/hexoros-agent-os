@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Shipped
+- **2026-06-12** — Production redeploy: storefront and chat frontend refreshed
 - **2026-06-12** — Repository now ships with full AGPL-3.0 LICENSE file; automated sync pipeline with secret-scanning guard established
 
 ### Planned
