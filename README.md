@@ -17,7 +17,7 @@ Most commercial AI tools sell you a lease on a closed black box — charging you
 **HexorOS is the private alternative:** a self-hosted AI agent operating system running entirely on hardware you control or secure EU GPU nodes. This repository hosts the **Agent OS Dashboard** — the stateless, transparent operator interface that sits in front of your private agent fleet.
 
 - **🔒 Privacy by architecture:** No data leaves your system. Logs, memory, and inference stay on your servers. GDPR-compliant by design.
-- **🚫 No vendor lock-in:** Full independence from third-party APIs through local, highly optimized open-source models (such as Qwen3:27b).
+- **🚫 No vendor lock-in:** Full independence from third-party APIs through local, highly optimized open-source models (such as Qwen3.6).
 - **🖥️ Zero-telemetry auditing:** The entire UI is a single HTML file. Audit every line of code in your browser before you run it.
 
 ---
@@ -86,7 +86,7 @@ The dashboard is completely stateless and talks to your secure backend gateway v
 +------------------+                 +------------------+
 | INFERENCE LAYER  |                 |    MCP LAYER     |
 |  Ollama Runtime  |                 |  hexoros-brain   |
-|   (Qwen3 27B)    |                 | (Memory & Vault) |
+|    (Qwen3.6)     |                 | (Memory & Vault) |
 +------------------+                 +------------------+
 ```
 

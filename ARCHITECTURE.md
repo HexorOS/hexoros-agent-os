@@ -23,7 +23,7 @@ flowchart TB
 
         subgraph Inference["Inference Layer"]
             OLLAMA["Ollama runtime"]
-            MODEL["HexorOS 27B<br/>(Qwen3-derived)"]
+            MODEL["HexorOS 27B<br/>(Qwen3.6-derived)"]
         end
 
         subgraph MCP["MCP Layer"]
