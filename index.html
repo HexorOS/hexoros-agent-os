@@ -134,6 +134,40 @@ tr:hover td{background:var(--bg3);}
 .src-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg2);border:1px solid var(--b);margin-bottom:5px;font-size:10px;}
 .img-thumb{width:100%;aspect-ratio:1;background:var(--bg3);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--dim);margin-bottom:6px;overflow:hidden;}
 .img-thumb img{width:100%;height:100%;object-fit:cover;}
+
+/* Responsive adjustments (AI OS Video features) */
+.mobile-toggle{display:none;}
+@media (max-width: 768px) {
+  .mobile-toggle{display:block !important;background:transparent;border:1px solid var(--b);color:var(--c);font-size:12px;padding:3px 8px;margin-right:8px;}
+  .sb {
+    position: absolute;
+    top: 42px;
+    left: 0;
+    width: 200px;
+    height: calc(100% - 42px);
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease-in-out;
+  }
+  .sb.open {
+    transform: translateX(0);
+  }
+  .sb-logo { display: none; }
+  .sb-overlay {
+    position: fixed;
+    inset: 42px 0 0 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 40;
+  }
+  .g2, .g3, .g4 { grid-template-columns: 1fr !important; gap: 8px; }
+  .fi { grid-template-columns: 1fr !important; height: auto !important; }
+  .nlm-grid { grid-template-columns: 1fr !important; height: auto !important; }
+  .panel { padding: 12px; }
+  .nav { padding: 10px 14px; font-size: 11px; }
+  .ci { padding: 10px 12px; font-size: 12px; }
+  .btn, button { min-height: 30px; font-size: 10px; }
+  .modal { min-width: 90vw; }
+}
 </style>
 </head>
 <body>
@@ -500,6 +534,20 @@ function Dashboard({agents,onAgent}){
             <div style={{fontSize:9,color:'var(--dim)',marginTop:4}}>{({claude:'Claude API',ollama:'Ollama / HexorOS',custom:'Custom'})[a.provider]} · click to chat</div>
           </div>
         ))}
+      </div>
+      <div className="lbl">Token Quota & Usage</div>
+      <div className="card" style={{marginBottom:20,padding:'12px 14px'}}>
+        <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:'var(--dim)',marginBottom:6}}>
+          <span>Active Subscription: Complete Tier</span>
+          <span style={{color:'var(--c)',fontWeight:'bold'}}>83.4% remaining</span>
+        </div>
+        <div className="progress" style={{height:6,background:'var(--bg4)',borderRadius:3,marginBottom:6}}>
+          <div className="pf" style={{width:'83.4%',background:'var(--c)'}}/>
+        </div>
+        <div style={{display:'flex',justifyContent:'space-between',fontSize:9,color:'var(--dim)'}}>
+          <span>16.6M / 100M tokens used</span>
+          <span>Reset: July 1, 2026</span>
+        </div>
       </div>
       <div className="lbl">System Snapshot</div>
       <div className="card" style={{fontSize:11,lineHeight:2}}>
@@ -884,9 +932,10 @@ function App(){
   const[agents,setAgents]=useLs('hx_agents_v2',AGENT_DEFAULTS);
   const[section,setSection]=useState('dash');
   const[agent,setAgent]=useState(null);
-  const openAgent=id=>{const a=agents.find(x=>x.id===id);if(a)setAgent(a);};
+  const[sbOpen,setSbOpen]=useState(false);
+  const openAgent=id=>{const a=agents.find(x=>x.id===id);if(a){setAgent(a);setSbOpen(false);}};
   const updateAgent=cfg=>{setAgents(as=>as.map(a=>a.id===cfg.id?cfg:a));setAgent(cfg);};
-  const goSection=id=>{setSection(id);setAgent(null);};
+  const goSection=id=>{setSection(id);setAgent(null);setSbOpen(false);};
   const panel=()=>{
     if(agent)return<AgentChat agent={agent} onUpdateAgent={updateAgent}/>;
     switch(section){
@@ -903,7 +952,8 @@ function App(){
   };
   return(
     <div className="app">
-      <div className="sb">
+      {sbOpen && <div className="sb-overlay" onClick={()=>setSbOpen(false)}/>}
+      <div className={`sb ${sbOpen?'open':''}`}>
         <div className="sb-logo"><div className="sb-t glow">HEXOROS</div><div className="sb-s">AGENT OS · INTERNAL</div></div>
         <div style={{overflowY:'auto',flex:1}}>
           <div className="sec-lbl">Workspace</div>
@@ -920,6 +970,7 @@ function App(){
       </div>
       <div className="main">
         <div className="hdr">
+          <button className="mobile-toggle bsm" onClick={()=>setSbOpen(!sbOpen)}>☰</button>
           {agent?(
             <>
               <div style={{width:7,height:7,borderRadius:'50%',background:agent.clr,boxShadow:`0 0 7px ${agent.clr}`}}/>
