@@ -138,35 +138,88 @@ tr:hover td{background:var(--bg3);}
 /* Responsive adjustments (AI OS Video features) */
 .mobile-toggle{display:none;}
 @media (max-width: 768px) {
-  .mobile-toggle{display:block !important;background:transparent;border:1px solid var(--b);color:var(--c);font-size:12px;padding:3px 8px;margin-right:8px;}
+  .mobile-toggle{display:flex !important;align-items:center;justify-content:center;background:transparent;border:1px solid var(--b);color:var(--c);font-size:18px;padding:8px 12px;margin-right:8px;min-width:44px;min-height:44px;}
   .sb {
-    position: absolute;
-    top: 42px;
+    position: fixed;
+    top: 0;
     left: 0;
-    width: 200px;
-    height: calc(100% - 42px);
+    width: 280px;
+    max-width: 85vw;
+    height: 100vh;
     z-index: 50;
     transform: translateX(-100%);
-    transition: transform 0.2s ease-in-out;
+    transition: transform 0.25s ease;
+    box-shadow: 4px 0 24px rgba(0,0,0,.5);
   }
   .sb.open {
     transform: translateX(0);
   }
-  .sb-logo { display: none; }
+  .sb-logo { display: flex; }
   .sb-overlay {
     position: fixed;
-    inset: 42px 0 0 0;
-    background: rgba(0, 0, 0, 0.6);
-    z-index: 40;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 49;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s, visibility 0.25s;
   }
-  .g2, .g3, .g4 { grid-template-columns: 1fr !important; gap: 8px; }
-  .fi { grid-template-columns: 1fr !important; height: auto !important; }
+  .sb-overlay.show {
+    opacity: 1;
+    visibility: visible;
+  }
+  .g2, .g3, .g4 { grid-template-columns: 1fr !important; gap: 10px; }
+  .fi[style*="gridTemplateColumns"] { grid-template-columns: 1fr !important; height: auto !important; }
   .nlm-grid { grid-template-columns: 1fr !important; height: auto !important; }
   .panel { padding: 12px; }
-  .nav { padding: 10px 14px; font-size: 11px; }
-  .ci { padding: 10px 12px; font-size: 12px; }
-  .btn, button { min-height: 30px; font-size: 10px; }
-  .modal { min-width: 90vw; }
+  .nav { padding: 14px 16px; font-size: 13px; min-height: 48px; }
+  .ci { padding: 12px 14px; font-size: 16px; min-height: 48px; }
+  .btn, .bsm, .bdng, button[type="button"], button[type="submit"] { min-height: 44px; min-width: 44px; font-size: 14px; padding: 10px 16px; }
+  .modal { min-width: 0; width: 95vw; max-width: 95vw; padding: 16px; }
+  .modal-t { font-size: 13px; }
+  .field input, .field select, .field textarea { font-size: 16px; padding: 12px 14px; min-height: 48px; }
+  .lbl { font-size: 11px; margin-bottom: 10px; }
+  .card { padding: 14px; }
+  .pil { padding: 18px; }
+  .pn { font-size: 28px; }
+  .pt { font-size: 12px; }
+  .an { font-size: 14px; }
+  .ar { font-size: 11px; }
+  .sr { padding: 8px 10px; font-size: 11px; }
+  .pdot { width: 8px; height: 8px; }
+  .sb-bot { padding: 14px 12px; }
+  .sec-lbl { padding: 12px 12px 6px; font-size: 9px; }
+  .sb-logo { padding: 16px 16px 12px; }
+  .sb-t { font-size: 13px; }
+  .sb-s { font-size: 10px; }
+  .kcol { min-width: 0; }
+  .kct { font-size: 10px; white-space: nowrap; }
+  .kcard { font-size: 12px; padding: 10px; }
+  .ml { font-size: 9px; }
+  .bbl { font-size: 12px; padding: 10px 12px; line-height: 1.6; }
+  .ac { padding: 16px; }
+  .progress { height: 6px; }
+  .memory-pill { font-size: 11px; padding: 8px 14px; }
+  .gtab { padding: 12px 16px; font-size: 11px; min-height: 44px; }
+  .tag { padding: 6px 12px; font-size: 10px; }
+  table { font-size: 12px; }
+  th, td { padding: 10px 12px; }
+  .src-item { padding: 12px 14px; font-size: 12px; }
+  .img-thumb { aspect-ratio: 1; }
+  input, textarea, select { font-size: 16px !important; padding: 12px 14px !important; min-height: 48px; }
+  .hdr { height: auto; min-height: 56px; padding: 8px 12px; }
+  .cir { padding: 10px 12px; gap: 10px; }
+  .graph-container { height: 300px; }
+  /* Multi-Agent split view */
+  .mr-multi { display: grid; grid-template-columns: 1fr !important; gap: 0; }
+  [style*="gridTemplateColumns*repeat"] { grid-template-columns: 1fr !important; }
+
+  /* Ensure text doesn't overflow */
+  .nav span[style*="flex:1"] { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ac > div:last-child { font-size: 10px; }
+
+  /* Knowledge graph canvas */
+  #graph-canvas { touch-action: none; }
 }
 </style>
 </head>
@@ -952,7 +1005,7 @@ function App(){
   };
   return(
     <div className="app">
-      {sbOpen && <div className="sb-overlay" onClick={()=>setSbOpen(false)}/>}
+      <div className={`sb-overlay ${sbOpen?'show':''}`} onClick={()=>setSbOpen(false)}/>
       <div className={`sb ${sbOpen?'open':''}`}>
         <div className="sb-logo"><div className="sb-t glow">HEXOROS</div><div className="sb-s">AGENT OS · INTERNAL</div></div>
         <div style={{overflowY:'auto',flex:1}}>
