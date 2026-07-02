@@ -102,11 +102,12 @@ class CgroupV2Backend:
     """
 
     name = "cgroup-v2"
+    CONTROLLERS = ("cpu", "memory", "pids")
 
     def __init__(self, agent: str, call_id: str, budget: Budget):
         self.budget = budget
         self.path = CGROUP_ROOT / SLICE / agent / call_id
-        self.path.mkdir(parents=True, exist_ok=True)
+        self._ensure_tree()
         self._write("memory.high", str(budget.memory_soft))
         self._write("memory.max", str(budget.memory_max))
         period = 100_000
@@ -127,6 +128,36 @@ class CgroupV2Backend:
             return True
         except OSError:
             return False
+
+    def _ensure_tree(self) -> None:
+        """Create the cgroup path, enabling controllers in every ancestor's
+        cgroup.subtree_control (without this, child cgroups get no
+        memory.*/cpu.* files and writes fail with EACCES)."""
+        rel = self.path.relative_to(CGROUP_ROOT)
+        node = CGROUP_ROOT
+        for part in rel.parts:
+            self._enable_controllers(node)
+            node = node / part
+            node.mkdir(exist_ok=True)
+
+    @classmethod
+    def _enable_controllers(cls, node: Path) -> None:
+        try:
+            avail = (node / "cgroup.controllers").read_text().split()
+        except OSError:
+            return
+        ctl = node / "cgroup.subtree_control"
+        enabled = set()
+        try:
+            enabled = set(ctl.read_text().split())
+        except OSError:
+            pass
+        for c in cls.CONTROLLERS:
+            if c in avail and c not in enabled:
+                try:
+                    ctl.write_text(f"+{c}")
+                except OSError:
+                    pass  # e.g. "no internal process" constraint; probed below
 
     def _write(self, ctl: str, value: str) -> None:
         (self.path / ctl).write_text(value)
@@ -244,7 +275,12 @@ class ToolCall:
         self.call_id = f"{name}-{uuid.uuid4().hex[:8]}"
         self.budget = budget.resolved()
         backend_cls = backend_cls or detect_backend()
-        self.backend = backend_cls(agent, self.call_id, self.budget)
+        try:
+            self.backend = backend_cls(agent, self.call_id, self.budget)
+        except OSError:
+            # cgroup tree exists but controllers can't be delegated here
+            # (container, hardened host) -> degrade to userspace backend.
+            self.backend = RlimitBackend(agent, self.call_id, self.budget)
         self.stats = ToolCallStats()
         self._procs: list[subprocess.Popen] = []
         self._stop = threading.Event()
